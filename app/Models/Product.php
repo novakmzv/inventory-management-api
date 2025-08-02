@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Product extends Model
 {
@@ -32,10 +33,36 @@ class Product extends Model
     ];
 
     /**
+     * Relación con lotes
+     */
+    public function batches(): BelongsToMany
+    {
+        return $this->belongsToMany(Batch::class)
+            ->withPivot('quantity')
+            ->withTimestamps();
+    }
+
+    /**
      * Get the formatted price attribute.
      */
     public function getFormattedPriceAttribute(): string
     {
         return number_format($this->price, 2);
+    }
+
+    /**
+     * Incrementar stock del producto
+     */
+    public function incrementStock(int $quantity): void
+    {
+        $this->increment('quantity', $quantity);
+    }
+
+    /**
+     * Decrementar stock del producto
+     */
+    public function decrementStock(int $quantity): void
+    {
+        $this->decrement('quantity', $quantity);
     }
 }
