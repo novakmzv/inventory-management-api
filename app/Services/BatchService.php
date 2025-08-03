@@ -11,7 +11,7 @@ class BatchService
     public function createBatch(array $data): Batch
     {
         return DB::transaction(function () use ($data) {
-            // Crear el lote
+
             $batch = Batch::create([
                 'production_date' => $data['production_date'],
                 'description' => $data['description'] ?? null,
@@ -27,7 +27,6 @@ class BatchService
     public function updateBatch(Batch $batch, array $data): Batch
     {
         return DB::transaction(function () use ($batch, $data) {
-            // Si se actualizan productos, revertir stock anterior
             if (isset($data['products'])) {
                 $this->revertBatchStock($batch);
                 $batch->products()->detach();

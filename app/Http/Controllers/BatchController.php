@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreBatchRequest;
 use App\Http\Requests\UpdateBatchRequest;
+use App\Http\Resources\BatchCollection;
+use App\Http\Resources\BatchResource;
 use App\Models\Batch;
 use App\Services\BatchService;
 use Illuminate\Http\JsonResponse;
@@ -12,7 +14,7 @@ class BatchController extends Controller
 {
 
     public function __construct(
-        private BatchService $batchService
+        private readonly BatchService $batchService
     ) {}
 
     /**
@@ -22,11 +24,9 @@ class BatchController extends Controller
     {
         $batches = Batch::with('products')->orderBy('production_date', 'desc')->get();
 
-        return response()->json([
-            'data' => $batches,
-            'code' => 200,
-            'message' => 'Batches retrieved successfully'
-        ]);
+        return response()->json(
+            (new BatchCollection($batches))->toArray(request())
+        );
     }
 
     /**
@@ -37,7 +37,7 @@ class BatchController extends Controller
         $batch = $this->batchService->createBatch($request->validated());
 
         return response()->json([
-            'data' => $batch,
+            'data' => new BatchResource($batch),
             'code' => 201,
             'message' => 'Batch created successfully'
         ], 201);
@@ -51,7 +51,7 @@ class BatchController extends Controller
         $batch->load('products');
 
         return response()->json([
-            'data' => $batch,
+            'data' => new BatchResource($batch),
             'code' => 200,
             'message' => 'Batch retrieved successfully'
         ]);
@@ -65,7 +65,7 @@ class BatchController extends Controller
         $updatedBatch = $this->batchService->updateBatch($batch, $request->validated());
 
         return response()->json([
-            'data' => $updatedBatch,
+            'data' => new BatchResource($updatedBatch),
             'code' => 200,
             'message' => 'Batch updated successfully'
         ]);
