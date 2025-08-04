@@ -43,6 +43,16 @@ class Product extends Model
     }
 
     /**
+     * Relación con ventas
+     */
+    public function sales(): BelongsToMany
+    {
+        return $this->belongsToMany(Sale::class)
+            ->withPivot('quantity', 'unit_price', 'subtotal')
+            ->withTimestamps();
+    }
+
+    /**
      * Get the formatted price attribute.
      */
     public function getFormattedPriceAttribute(): string
